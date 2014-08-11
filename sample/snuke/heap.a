@@ -1,0 +1,55 @@
+S####################
+
+Heap : AOJ ALDS1_9_C
+---------------------
+Heap node
+ 0 : Left
+ 1 : Right
+ 2 : Hight
+ 3 : Value
+
+####################\
+
+S## INF ##\
+A${1,60
+
+S## Array printer (for debug) ##\
+AwSvi:?#vv0,1,0:?=Lv-1Ov:PPOS[\\RiLvP?iOS,\\:0:FwVvi:0OS]\\::\
+
+AVq2:0
+AoSqx:
+ ?Vq2:
+  P?<xVq3:
+   PAyx
+   PAxVq3:
+   AVq3:y
+  :0:
+  AVq2:+1?<Vq0,2:Vq1,2: FoVq0:x : FoVq1:x :
+ :
+  PAVq0,2:AVq1,2:0
+  PAVq3:x
+  AVq2:1
+ :
+\
+ApSqx:
+ PAxVq3:
+ P?=Vq2:1
+  PAVq2:0
+  AVq3:$
+ :
+  PAVq3:?<Vq0,3:Vq1,3: FpVq0:0 : FpVq1:0 :
+  AVq2:+1?>Vq0,2:Vq1,2: Vq0,2: : Vq1,2: :
+ :
+ x
+\
+W
+ PAsIs
+ ?=sSend\
+  0
+ :
+  ?=sSinsert\
+   Foq-Id
+  :
+   PO-Fpq0OMc10
+  :
+ :

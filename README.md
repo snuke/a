@@ -114,6 +114,8 @@ M.9sSCat Snuke likes an array.\\ → Cat Snuke
 
 真偽値はFalseが 0、Trueが 1 となっています。
 
++演算子を文字列に対して行うと、文字列結合が出来ます。
+
 ######例
 
 Ax5Ay8+xy → 13
