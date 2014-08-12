@@ -1,6 +1,51 @@
 ***A言語ゴルフコンペ***
 =================
 
+ushさん、hirose_golfさん、satosさんの３名の方が参加して下さいました。ありがとうございます。
+
+ソースコード長
+
+|問題|ushさん|hirose_golfさん|satosさん|
+|||||
+|Quine|24|32|47|
+|オートマトン|42|42|59|
+
+となりましたので、優勝はushさんです。おめでとうございます。
+
+###ソースコード
+######最短コード
+`FAaS:O++T15,4aaMc92FAaS\` 24文字
+ 
+- ushさんのソースコードです。
+
+`RiIdRj2AVg+Ax1ij:IdORiLAsIsAxVgx=Ti1sSb\:` 41文字
+
+- ushさんのソースコードとhirose_golfさんのソースコードをmergeしました。
+
+######ushさん
+`FAaS:O++T15,4aaMc92FAaS\` 24文字
+
+`RiIdRj2AVg+1ij:IdAx1ORiLAsIsAxVgx=Ti1sSb\:` 42文字
+
+######hirose_golfさん
+`AAS:O+T23 3A+A+Mc92T22 2AFAAS\FA` 32文字
+
+`RiIdRj2AVa+Ap1ij:IdRiLAsIsApVap=Ti1sSb\:Op` 42文字
+
+######satosさん
+`ApSApSOT0,3pOpO+Mc92T3,20p\OT0,3pOpO+Mc92T3,20p` 47文字
+
+`RrIdPAVa+r1:IdAVb+r1:IdAiIsAp1RrLi?=Tr1iSa\ApVap::ApVbp::Op` 59文字
+
+######snuke
+`FABS:O++T15,4BBMc92FABS\` 24文字
+
+`RiIdAVgi2:iRjiRk2AVgjk:Vg+-1Id:O+1F++Sab:Vg0\IsS2:\0,1` 54文字
+
+- 配列が参照であることを利用してオートマトンを表現してみましたが、長かったです・・・
+
+###概要
+
 ２問の問題を出題します。ソースコードの長さが最も短かった人が優勝です。
 
 期間は、8/12 01:20 ~ 8/13 03:20 の 26 時間です。
