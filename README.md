@@ -31,7 +31,7 @@ $ ./interpreter code.a
 ######例
 
 ```
-$ ./compile code.a
+$ ./compiler code.a
 ```
 
 また、src/combined.ccをコンパイルして実行ファイルを作ってもOKです。
