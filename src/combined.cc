@@ -1,6 +1,7 @@
 /*
  Interpreter of a programming language "A" (not APL)
  Author: snuke
+ Github: https://github.com/snuke/a
 */
 
 #include <vector>
