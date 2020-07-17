@@ -12,8 +12,8 @@ ushさん、hirose_golfさん、satosさんの３名の方が参加して下さ�
 
 となりましたので、優勝はushさんです。おめでとうございます。
 
-###ソースコード
-######最短コード
+### ソースコード
+###### 最短コード
 `FAaS:O++T15,4aaMc92FAaS\` 24文字
  
 - ushさんのソースコードです。
@@ -22,29 +22,29 @@ ushさん、hirose_golfさん、satosさんの３名の方が参加して下さ�
 
 - ushさんのソースコードとhirose_golfさんのソースコードをmergeしました。
 
-######ushさん
+###### ushさん
 `FAaS:O++T15,4aaMc92FAaS\` 24文字
 
 `RiIdRj2AVg+1ij:IdAx1ORiLAsIsAxVgx=Ti1sSb\:` 42文字
 
-######hirose_golfさん
+###### hirose_golfさん
 `AAS:O+T23 3A+A+Mc92T22 2AFAAS\FA` 32文字
 
 `RiIdRj2AVa+Ap1ij:IdRiLAsIsApVap=Ti1sSb\:Op` 42文字
 
-######satosさん
+###### satosさん
 `ApSApSOT0,3pOpO+Mc92T3,20p\OT0,3pOpO+Mc92T3,20p` 47文字
 
 `RrIdPAVa+r1:IdAVb+r1:IdAiIsAp1RrLi?=Tr1iSa\ApVap::ApVbp::Op` 59文字
 
-######snuke
+###### snuke
 `FABS:O++T15,4BBMc92FABS\` 24文字
 
 `RiIdAVgi2:iRjiRk2AVgjk:Vg+-1Id:O+1F++Sab:Vg0\IsS2:\0,1` 54文字
 
 - 配列が参照であることを利用してオートマトンを表現してみましたが、長かったです・・・
 
-###概要
+### 概要
 
 ２問の問題を出題します。ソースコードの長さが最も短かった人が優勝です。
 
@@ -52,14 +52,14 @@ ushさん、hirose_golfさん、satosさんの３名の方が参加して下さ�
 
 ソースコードは、gist等にuploadして、twitter(@snuke_)にDMで送って下さい。
 
-##問題１：Quine
+## 問題１：Quine
 quineを作成して下さい。
 
 quineとは、実行すると自分自身が出力される、空文字列でないソースコードです。
 
 入力はありません。
 
-##問題２：オートマトン
+## 問題２：オートマトン
 整数 N と N 種類の状態をもつDFAの状態遷移表 T とDFAへの入力を表す文字列 S が与えられます。
 
 初期状態は状態 1 です。
@@ -68,12 +68,12 @@ quineとは、実行すると自分自身が出力される、空文字列でな
 
 入力文字列 S は 'a', 'b' の２種類の文字からなります。
 
-####制約
+#### 制約
 1 ≤ N ≤ 10
 
 1 ≤ |S| ≤ 100
 
-####入力
+#### 入力
 ```
 N
 T1,1 T1,2
@@ -93,12 +93,12 @@ S
 
 を表します。
 
-####出力
+#### 出力
 初期状態を状態 1 とし、S を入力としたときの最終状態の番号を出力して下さい。
 
 末尾に改行を出力する必要はありません。
 
-####入出力例
+#### 入出力例
 
 入力例１
 
