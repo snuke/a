@@ -26,25 +26,25 @@ class Interpreter {
   typedef std::string::const_iterator State;
   struct Data {
     Type type;
-    void* p;
+    int i;
     Data();
-    Data(Type type, void* p);
+    Data(Type type, int i);
     bool operator<(const Data& x) const;
     bool operator==(const Data& x) const;
-    inline long long& Int() const { return *(long long*)p;}
-    inline double& Float() const { return *(double*)p;}
-    inline std::string& Str() const { return *(std::string*)p;}
-    inline std::vector<Data>& Array() const { return *(std::vector<Data>*)p;}
+    inline long long& Int() const { return pool_int_[i];}
+    inline double& Float() const { return pool_float_[i];}
+    inline std::string& Str() const { return pool_str_[i];}
+    inline std::vector<Data>& Array() const { return pool_array_[i];}
   };
   static const double EPS;
   static const int MAX_POOL_INT;
   static const int MAX_POOL_FLOAT;
   static const int MAX_POOL_STR;
   static const int MAX_POOL_ARRAY;
-  std::vector<long long> pool_int_;
-  std::vector<double> pool_float_;
-  std::vector<std::string> pool_str_;
-  std::vector<std::vector<Data> > pool_array_;
+  static std::vector<long long> pool_int_;
+  static std::vector<double> pool_float_;
+  static std::vector<std::string> pool_str_;
+  static std::vector<std::vector<Data> > pool_array_;
   std::istream* input_;
   std::ostream* output_;
   std::ostringstream error_;
@@ -58,7 +58,7 @@ class Interpreter {
   Data& Vector(State& cur, Data& x);
   Data& Var(State& cur);
   Data Defined(State& cur);
-  Data Exec(State& cur, State& fcur);
+  Data FuncExec(State& cur, State& fcur);
   Data Func(State& cur);
   Data Num(State& cur);
   Data Str(State& cur);
@@ -69,7 +69,7 @@ class Interpreter {
   Data Length(State& cur);
   char tmp_s[128];
   Data Format(State& cur);
-  Data Pair(State& cur);
+  Data Paragraph(State& cur);
   void Print(Data x);
   Data Output(State& cur);
   void Skip(State& cur);
@@ -84,8 +84,8 @@ const int Interpreter::MAX_POOL_FLOAT = 1000000;
 const int Interpreter::MAX_POOL_STR   = 1000000;
 const int Interpreter::MAX_POOL_ARRAY = 1000000;
 
-Interpreter::Data::Data() : type(NONE), p(NULL) {}
-Interpreter::Data::Data(Type type, void* p) : type(type), p(p) {}
+Interpreter::Data::Data() : type(NONE), i(-1) {}
+Interpreter::Data::Data(Type type, int i) : type(type), i(i) {}
 
 bool Interpreter::Data::operator<(const Data& x) const {
   if (type == NONE || x.type == NONE) return false;
@@ -124,48 +124,48 @@ void Interpreter::Run(const std::string& code,
   while (*cur != '\0') Expr(cur);
 }
 
+std::vector<long long> Interpreter::pool_int_;
+std::vector<double> Interpreter::pool_float_;
+std::vector<std::string> Interpreter::pool_str_;
+std::vector<std::vector<Interpreter::Data> > Interpreter::pool_array_;
+
 void Interpreter::InitVars() {
   pool_int_.reserve(MAX_POOL_INT);
   pool_float_.reserve(MAX_POOL_FLOAT);
   pool_str_.reserve(MAX_POOL_STR);
   pool_array_.reserve(MAX_POOL_ARRAY);
   vars_ = std::vector<Data>(256);
-  std::string defs = "AFILMOPRSTUVW?!~-+*/%&|^{}<>=#";
+  std::string defs = "AFILMOPRSTUVW0123456789?!~-+*/%&|^{}<>=#:";
   for (int i = 0; i < (int)defs.size(); ++i) vars_[defs[i]].type = DEF;
 }
 
 Interpreter::Data Interpreter::NewInt(long long x) {
   pool_int_.push_back(x);
-  return Data(INT, &pool_int_.back());
+  return Data(INT, pool_int_.size() - 1);
 }
 
 Interpreter::Data Interpreter::NewFloat(double x) {
   pool_float_.push_back(x);
-  return Data(FLOAT, &pool_float_.back());
+  return Data(FLOAT, pool_float_.size() - 1);
 }
 
 Interpreter::Data Interpreter::NewStr(const std::string& x) {
   pool_str_.push_back(x);
-  return Data(STR, &pool_str_.back());
+  return Data(STR, pool_str_.size() - 1);
 }
 
 Interpreter::Data Interpreter::NewArray(const std::vector<Data>& x) {
   pool_array_.push_back(x);
-  return Data(ARRAY, &pool_array_.back());
+  return Data(ARRAY, pool_array_.size() - 1);
 }
 
 Interpreter::Data Interpreter::Expr(State& cur) {
-  if (isdigit(*cur)) {
-    return Num(cur);
-  } else {
-    if (vars_[*cur].type == NONE) {
-      ++cur;
-      if (*cur == '\0') return Data();
-      return Expr(cur);
-    }
-    if (vars_[*cur].type == DEF && *cur != 'V') return Defined(cur);
-    return Var(cur);
+  while (vars_[*cur].type == NONE) {
+    if (*cur == '\0') return Data();
+    ++cur;
   }
+  if (vars_[*cur].type == DEF && *cur != 'V') return Defined(cur);
+  return Var(cur);
 }
 
 Interpreter::Data& Interpreter::Vector(State& cur, Data& x) {
@@ -178,10 +178,7 @@ Interpreter::Data& Interpreter::Vector(State& cur, Data& x) {
     x = NewArray(std::vector<Data>());
   }
   std::vector<Data>& v = x.Array();
-  if ((int)v.size() <= i) {
-    std::vector<Data> new_v(i - (int)v.size() + 1);
-    v.insert(v.end(), new_v.begin(), new_v.end());
-  }
+  if ((int)v.size() <= i) v.resize(i+1);
   return Vector(cur, v[i]);
 }
 
@@ -198,31 +195,38 @@ Interpreter::Data& Interpreter::Var(State& cur) {
 }
 
 Interpreter::Data Interpreter::Defined(State& cur) {
+  if (*cur == ':') return Data();
   if (*cur == 'A') return Assign(cur);
   if (*cur == 'F') return Func(cur);
   if (*cur == 'I') return Input(cur);
   if (*cur == 'L') return Length(cur);
   if (*cur == 'M') return Format(cur);
   if (*cur == 'O') return Output(cur);
-  if (*cur == 'P') return Pair(cur);
+  if (*cur == 'P') return Paragraph(++cur);
   if (*cur == 'R') return Repeat(cur);
   if (*cur == 'S') return Str(cur);
   if (*cur == 'T') return SubStr(cur);
   if (*cur == 'U') return EditStr(cur);
   if (*cur == 'W') return Loop(cur);
   if (*cur == '?') return Cond(cur);
+  if (isdigit(*cur)) return Num(cur);
   return Operate(cur);
 }
 
-Interpreter::Data Interpreter::Exec(State& cur, State& fcur) {
+Interpreter::Data Interpreter::FuncExec(State& cur, State& fcur) {
   if (*fcur == ':') {
     ++fcur;
-    return Expr(fcur);
+    Data res;
+    while (*fcur != '\0') {
+      Data now = Expr(fcur);
+      if (now.type != NONE) res = now;
+    }
+    return res;
   } else {
     char name = *fcur; ++fcur;
     Data pre = vars_[name];
     vars_[name] = Expr(cur);
-    Data res = Exec(cur, fcur);
+    Data res = FuncExec(cur, fcur);
     vars_[name] = pre;
     return res;
   }
@@ -231,7 +235,7 @@ Interpreter::Data Interpreter::Exec(State& cur, State& fcur) {
 Interpreter::Data Interpreter::Func(State& cur) {
   ++cur;
   State fcur = Expr(cur).Str().begin();
-  return Exec(cur, fcur);
+  return FuncExec(cur, fcur);
 }
 
 Interpreter::Data Interpreter::Num(State& cur) {
@@ -324,22 +328,26 @@ Interpreter::Data Interpreter::Length(State& cur) {
 
 Interpreter::Data Interpreter::Format(State& cur) {
   ++cur;
-  std::string form = "%";
-  while (!islower(*cur)) form += *cur, ++cur;
-  if (*cur == 'd') form += "ll";
-  form += *cur; ++cur;
+  std::string fmt = "%";
+  while (!islower(*cur)) fmt += *cur, ++cur;
+  if (*cur == 'd') fmt += "ll";
+  fmt += *cur; ++cur;
   Data x = Expr(cur);
-  if (x.type == INT) sprintf(tmp_s, form.c_str(), x.Int());
-  else if (x.type == FLOAT) sprintf(tmp_s, form.c_str(), x.Float());
-  else sprintf(tmp_s, form.c_str(), x.Str().c_str());
-  std::string s = tmp_s;
-  return NewStr(s);
+  if (x.type == STR) return NewStr(x.Str());
+  if (x.type == INT) snprintf(tmp_s, 1024, fmt.c_str(), x.Int());
+  else if (x.type == FLOAT) snprintf(tmp_s, 1024, fmt.c_str(), x.Float());
+  else tmp_s[0] = '\0';
+  return NewStr(tmp_s);
 }
 
-Interpreter::Data Interpreter::Pair(State& cur) {
+Interpreter::Data Interpreter::Paragraph(State& cur) {
+  Data res;
+  while (*cur != ':') {
+    Data now = Expr(cur);
+    if (now.type != NONE) res = now;
+  }
   ++cur;
-  Expr(cur);
-  return Expr(cur);
+  return res;
 }
 
 void Interpreter::Print(Data x) {
@@ -374,34 +382,32 @@ void Interpreter::Skip(State& cur) {
         ++cur;
         if (*cur == '\\') t = true, ++cur;
       } else ++cur;
+    } else if (*cur == ':') {
+      ++cur;
+      if (cnt) --cnt;
+      else break;
     } else {
-      if (*cur == ':') {
-        if (cnt) --cnt;
-        else break;
-      }
       if (*cur == 'S' && vars_['S'].type == DEF) t = true;
       if (*cur == 'V' && vars_['V'].type == DEF) ++cnt;
+      if (*cur == 'P' && vars_['P'].type == DEF) ++cnt;
       if (*cur == '?' && vars_['?'].type == DEF) cnt += 2;
       ++cur;
     }
   }
-  ++cur;
 }
 
 Interpreter::Data Interpreter::Cond(State& cur) {
   ++cur;
   long long x = Expr(cur).Int();
+  Data res;
   if (x) {
-    Data res = Expr(cur);
+    res = Paragraph(cur);
     Skip(cur);
-    Skip(cur);
-    return res;
   } else {
     Skip(cur);
-    Data res = Expr(cur);
-    Skip(cur);
-    return res;
+    res = Paragraph(cur);
   }
+  return res;
 }
 
 Interpreter::Data Interpreter::Repeat(State& cur) {

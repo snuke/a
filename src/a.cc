@@ -9,28 +9,27 @@
 #include <sstream>
 #include <stdlib.h>
 #include "interpreter.h"
-using namespace std;
 
-void ReadCode(char* filename, string* result);
+void ReadCode(char* filename, std::string* result);
 
 int main(int argc, char** argv) {
   if (argc != 2) {
-    cerr << "Usage : " << argv[0] << " SOURCE_FILE" << endl;
+    std::cerr << "Usage : " << argv[0] << " SOURCE_FILE" << std::endl;
     return 0;
   }
-  string code;
+  std::string code;
   ReadCode(argv[1], &code);
   Interpreter interpreter;
-  interpreter.Run(code, &cin, &cout);
+  interpreter.Run(code, &std::cin, &std::cout);
   return 0;
 }
 
-void ReadCode(char* filename, string* result) {
-  ifstream ifs(filename);
+void ReadCode(char* filename, std::string* result) {
+  std::ifstream ifs(filename);
   if (ifs.fail()) {
-    cerr << "Error : SOURCE_FILE not found" << endl;
+    std::cerr << "Error : SOURCE_FILE not found" << std::endl;
     exit(0);
   }
-  string str;
-  while (getline(ifs, str)) result->append(str + '\n');
+  std::string str;
+  while (std::getline(ifs, str)) result->append(str + '\n');
 }

@@ -21,25 +21,25 @@ class Interpreter {
   typedef std::string::const_iterator State;
   struct Data {
     Type type;
-    void* p;
+    int i;
     Data();
-    Data(Type type, void* p);
+    Data(Type type, int i);
     bool operator<(const Data& x) const;
     bool operator==(const Data& x) const;
-    inline long long& Int() const { return *(long long*)p;}
-    inline double& Float() const { return *(double*)p;}
-    inline std::string& Str() const { return *(std::string*)p;}
-    inline std::vector<Data>& Array() const { return *(std::vector<Data>*)p;}
+    inline long long& Int() const { return pool_int_[i];}
+    inline double& Float() const { return pool_float_[i];}
+    inline std::string& Str() const { return pool_str_[i];}
+    inline std::vector<Data>& Array() const { return pool_array_[i];}
   };
   static const double EPS;
   static const int MAX_POOL_INT;
   static const int MAX_POOL_FLOAT;
   static const int MAX_POOL_STR;
   static const int MAX_POOL_ARRAY;
-  std::vector<long long> pool_int_;
-  std::vector<double> pool_float_;
-  std::vector<std::string> pool_str_;
-  std::vector<std::vector<Data> > pool_array_;
+  static std::vector<long long> pool_int_;
+  static std::vector<double> pool_float_;
+  static std::vector<std::string> pool_str_;
+  static std::vector<std::vector<Data> > pool_array_;
   std::istream* input_;
   std::ostream* output_;
   std::ostringstream error_;
@@ -53,7 +53,7 @@ class Interpreter {
   Data& Vector(State& cur, Data& x);
   Data& Var(State& cur);
   Data Defined(State& cur);
-  Data Exec(State& cur, State& fcur);
+  Data FuncExec(State& cur, State& fcur);
   Data Func(State& cur);
   Data Num(State& cur);
   Data Str(State& cur);
@@ -62,9 +62,9 @@ class Interpreter {
   Data Assign(State& cur);
   Data Input(State& cur);
   Data Length(State& cur);
-  char tmp_s[128];
+  char tmp_s[1024];
   Data Format(State& cur);
-  Data Pair(State& cur);
+  Data Paragraph(State& cur);
   void Print(Data x);
   Data Output(State& cur);
   void Skip(State& cur);
