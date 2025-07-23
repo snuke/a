@@ -13,10 +13,10 @@
 #include <sstream>
 #include <cstdio>
 
-const int Interpreter::MAX_POOL_INT   = 10000000;
-const int Interpreter::MAX_POOL_FLOAT = 1000000;
-const int Interpreter::MAX_POOL_STR   = 1000000;
-const int Interpreter::MAX_POOL_ARRAY = 1000000;
+const int Interpreter::MAX_POOL_INT   = 50000000;
+const int Interpreter::MAX_POOL_FLOAT = 10000000;
+const int Interpreter::MAX_POOL_STR   = 10000000;
+const int Interpreter::MAX_POOL_ARRAY = 10000000;
 
 Interpreter::Data::Data() : type(NONE), i(-1) {}
 Interpreter::Data::Data(Type type, int i) : type(type), i(i) {}
@@ -108,6 +108,11 @@ Interpreter::Data& Interpreter::Vector(State& cur, Data& x) {
     return x;
   }
   int i = Expr(cur).Int();
+  if (x.type == STR) {
+    while (*cur != ':') ++cur;
+    ++cur;
+    return *(new Data(INT, NewInt(x.Str()[i]).i));
+  }
   if (x.type != ARRAY) {
     x = NewArray(std::vector<Data>());
   }
@@ -158,10 +163,10 @@ Interpreter::Data Interpreter::FuncExec(State& cur, State& fcur) {
     return res;
   } else {
     char name = *fcur; ++fcur;
-    Data pre = vars_[name];
-    vars_[name] = Expr(cur);
+    Data pre = Expr(cur);
+    std::swap(pre, vars_[name]);
     Data res = FuncExec(cur, fcur);
-    vars_[name] = pre;
+    std::swap(pre, vars_[name]);
     return res;
   }
 }
@@ -350,7 +355,7 @@ Interpreter::Data Interpreter::Repeat(State& cur) {
   int r = Expr(cur).Int();
   State start = cur;
   Data res;
-  for (i = NewInt(0); i.Int() < r; i = NewInt(i.Int() + 1)) {
+  for (i = NewInt(0); i.Int() < r; i.Int()++) {
     cur = start;
     res = Expr(cur);
   }
